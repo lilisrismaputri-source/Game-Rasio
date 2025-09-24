@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dapur Rasio Koki Kiko</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        :root {
+            --bg-color: #f4f1de; --primary-color: #e07a5f; --secondary-color: #3d405b;
+            --accent-color: #81b29a; --text-color: #3d405b; --correct-color: #2a9d8f;
+            --wrong-color: #e76f51; --light-grey: #f8f9fa;
+        }
+        body {
+            font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-color);
+            display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+            margin: 0; padding: 20px; box-sizing: border-box;
+        }
+        #game-container {
+            width: 100%; max-width: 700px; background-color: #ffffff; border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); padding: 20px 30px; text-align: center;
+            border: 5px solid var(--secondary-color);
+        }
+        h1 { color: var(--primary-color); margin-top: 0; margin-bottom: 10px; }
+        #game-header {
+            display: flex; justify-content: space-between; align-items: center;
+            background-color: var(--light-grey); padding: 10px 15px; border-radius: 10px;
+            margin-bottom: 15px; flex-wrap: wrap; gap: 10px;
+        }
+        .score-display { font-weight: 600; font-size: 0.9em; }
+        #level-progress {
+            width: 100%; background-color: #e9ecef; border-radius: 50px;
+            margin-top: 10px; height: 10px;
+        }
+        #progress-bar {
+            width: 0%; height: 100%; background-color: var(--accent-color);
+            border-radius: 50px; transition: width 0.5s ease;
+        }
+        #level-title {
+            font-size: 1.4em; font-weight: 700; color: var(--secondary-color); margin-bottom: 15px;
+        }
+        #question-container {
+            min-height: 120px; background-color: var(--light-grey); border: 2px dashed var(--accent-color);
+            border-radius: 10px; padding: 20px; margin-bottom: 20px; font-size: 1.1em;
+            line-height: 1.6; display: flex; flex-direction: column; justify-content: center;
+        }
+        #illustration-area { display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+        #illustration-area img { width: 50px; height: 50px; }
+        .answer-container { display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 15px; }
+        .answer-container input {
+            width: 80px; height: 45px; font-size: 1.5em; text-align: center;
+            border: 2px solid #ccc; border-radius: 8px;
+        }
+        .answer-container input:disabled { background-color: #e9ecef; }
+        .answer-container span { font-size: 2em; font-weight: bold; color: var(--primary-color); }
+        #feedback-area {
+            font-size: 1.1em; font-weight: 600; min-height: 40px;
+            margin-bottom: 20px; transition: opacity 0.5s; line-height: 1.4;
+        }
+        .feedback-correct { color: var(--correct-color); }
+        .feedback-wrong { color: var(--wrong-color); }
+        .hidden { display: none !important; }
+        #control-button {
+            background-color: var(--primary-color); color: white; border: none; padding: 15px 30px;
+            font-size: 1.1em; font-weight: 600; border-radius: 50px; cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s; min-width: 220px;
+        }
+        #control-button:hover { background-color: #c96244; transform: scale(1.05); }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>🍳 Dapur Rasio Koki Kiko 🍳</h1>
+        
+        <div id="game-header">
+            <div class="score-display">Level: <span id="level-number">1</span></div>
+            <div class="score-display">Skor Level: <span id="level-score">0</span></div>
+            <div class="score-display">Skor Total: <span id="total-score">0</span></div>
+            <div id="level-progress"><div id="progress-bar"></div></div>
+        </div>
+
+        <div id="level-title"></div>
+        <div id="question-container">
+            <div id="question-text"></div>
+            <div id="illustration-area"></div>
+        </div>
+
+        <div class="answer-container">
+            <div id="double-input-container" class="hidden">
+                <input type="number" id="input1" min="0">
+                <span>:</span>
+                <input type="number" id="input2" min="0">
+            </div>
+            <div id="single-input-container" class="hidden">
+                <input type="number" id="single-input" min="0">
+            </div>
+        </div>
+
+        <div id="feedback-area"></div>
+        <button id="control-button">Periksa Jawaban</button>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- URL WEB APP ANDA DARI LANGKAH 3 ---
+    // !!! GANTI DENGAN URL ANDA SENDIRI !!!
+    const SCRIPT_URL = "https://script.google.com/macros/s/xxxxxxxxxxxxxxxxxxxxxxxxxxxxx/exec";
+
+    const ui = {
+        // ... (semua elemen UI tetap sama) ...
+        levelNumber: document.getElementById('level-number'),
+        levelScore: document.getElementById('level-score'),
+        totalScore: document.getElementById('total-score'),
+        progressBar: document.getElementById('progress-bar'),
+        levelTitle: document.getElementById('level-title'),
+        questionText: document.getElementById('question-text'),
+        illustrationArea: document.getElementById('illustration-area'),
+        doubleInput: document.getElementById('double-input-container'),
+        singleInput: document.getElementById('single-input-container'),
+        input1: document.getElementById('input1'),
+        input2: document.getElementById('input2'),
+        singleInputEl: document.getElementById('single-input'),
+        feedbackArea: document.getElementById('feedback-area'),
+        controlButton: document.getElementById('control-button'),
+    };
+
+    let state = {
+        studentName: "", // Untuk menyimpan nama siswa
+        // ... (sisa state tetap sama) ...
+        currentLevelIndex: 0,
+        currentQuestionIndex: 0,
+        levelScore: 0,
+        totalScore: 0,
+        currentLevelQuestions: [],
+    };
+    
+    // ... (Data fruitImages dan levels tetap sama persis seperti sebelumnya) ...
+    const fruitImages = {
+        apel: 'https://img.icons8.com/plasticine/100/apple.png',
+        jeruk: 'https://img.icons8.com/plasticine/100/orange.png',
+        mangga: 'https://img.icons8.com/plasticine/100/000000/mango.png',
+        stroberi: 'https://img.icons8.com/plasticine/100/strawberry.png'
+    };
+    const levels = [ /* ... Salin dan tempel seluruh data 'levels' dari kode sebelumnya di sini ... */ ];
+
+    // --- FUNGSI BARU UNTUK MENGIRIM DATA ---
+    function sendDataToSheet(data) {
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors', // Penting untuk menghindari error CORS
+            cache: 'no-cache',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+            redirect: 'follow'
+        })
+        .then(response => {
+            console.log("Data sent successfully");
+        })
+        .catch(error => {
+            console.error("Error sending data:", error);
+        });
+    }
+
+    // ... (Fungsi gcd, simplifyRatio, shuffleArray tetap sama) ...
+    function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+    function simplifyRatio(num1, num2) { if (num1 === 0 && num2 === 0) return [0, 0]; const divisor = gcd(num1, num2); return [num1 / divisor, num2 / divisor]; }
+    function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
+    
+
+    function startGame() {
+        // Minta nama siswa di awal
+        state.studentName = prompt("Silakan masukkan nama Anda:", "Siswa");
+        if (!state.studentName) {
+            state.studentName = "Anonim"; // Default jika dibatalkan
+        }
+        
+        state.totalScore = 0;
+        state.currentLevelIndex = 0;
+        startLevel();
+    }
+
+    // ... (Fungsi startLevel dan displayQuestion tetap sama) ...
+    function startLevel() { if (state.currentLevelIndex >= levels.length) { endGame(); return; } const levelData = levels[state.currentLevelIndex]; state.levelScore = 0; state.currentQuestionIndex = 0; shuffleArray(levelData.questionBank); state.currentLevelQuestions = levelData.questionBank.slice(0, 4); updateScoreboard(); displayQuestion(); }
+    function displayQuestion() { resetUIForNewQuestion(); const levelData = levels[state.currentLevelIndex]; const question = state.currentLevelQuestions[state.currentQuestionIndex]; ui.levelTitle.textContent = Level ${state.currentLevelIndex + 1}: ${levelData.title}; ui.illustrationArea.innerHTML = ''; if (question.type === 'illustration') { ui.doubleInput.classList.remove('hidden'); ui.singleInput.classList.add('hidden'); ui.questionText.innerHTML = Amati buah di bawah. Apa rasio antara <strong>${question.items.item1.type}</strong> dan <strong>${question.items.item2.type}</strong>?; for (let i = 0; i < question.items.item1.count; i++) { const img = document.createElement('img'); img.src = fruitImages[question.items.item1.type]; ui.illustrationArea.appendChild(img); } for (let i = 0; i < question.items.item2.count; i++) { const img = document.createElement('img'); img.src = fruitImages[question.items.item2.type]; ui.illustrationArea.appendChild(img); } } else if (question.type === 'simplification') { ui.doubleInput.classList.remove('hidden'); ui.singleInput.classList.add('hidden'); ui.questionText.innerHTML = Sederhanakan rasio berikut ke bentuk paling kecil: <strong>${question.question[0]} : ${question.question[1]}</strong>; } else { ui.doubleInput.classList.add('hidden'); ui.singleInput.classList.remove('hidden'); ui.questionText.textContent = question.text; } }
+
+
+    // --- FUNGSI checkAnswer DIMODIFIKASI ---
+    function checkAnswer() {
+        const question = state.currentLevelQuestions[state.currentQuestionIndex];
+        let isCorrect = false;
+        let score = 0;
+        let userAnswerText = "";
+        let correctAnswerText = "";
+
+        const val1 = parseInt(ui.input1.value, 10) || 0;
+        const val2 = parseInt(ui.input2.value, 10) || 0;
+        const singleVal = parseInt(ui.singleInputEl.value, 10) || 0;
+
+        if (question.type === 'illustration' || question.type === 'simplification') {
+            userAnswerText = ${val1} : ${val2};
+            const simplifiedCorrect = simplifyRatio(question.answer[0], question.answer[1]);
+            correctAnswerText = ${simplifiedCorrect[0]} : ${simplifiedCorrect[1]};
+        } else {
+            userAnswerText = singleVal.toString();
+            correctAnswerText = question.answer.toString();
+        }
+
+        if (question.type === 'illustration') {
+            const [ans1, ans2] = question.answer;
+            if (val1 === 0 && val2 === 0) isCorrect = false;
+            else if (ans1 === 0 || ans2 === 0) isCorrect = (ans1 === val1 && ans2 === val2);
+            else isCorrect = (val1 * ans2 === val2 * ans1);
+        } else if (question.type === 'simplification') {
+            isCorrect = (val1 === question.answer[0] && val2 === question.answer[1]);
+        } else {
+            isCorrect = (singleVal === question.answer);
+        }
+
+        ui.input1.disabled = true;
+        ui.input2.disabled = true;
+        ui.singleInputEl.disabled = true;
+
+        if (isCorrect) {
+            score = 25;
+            state.levelScore += score;
+            state.totalScore += score;
+            ui.feedbackArea.innerHTML = Benar! Kamu dapat <strong>+${score}</strong> poin. 🎉;
+            ui.feedbackArea.className = 'feedback-correct';
+        } else {
+            score = 0;
+            ui.feedbackArea.innerHTML = Salah! Jawaban yang benar adalah <strong>${correctAnswerText}</strong>.;
+            ui.feedbackArea.className = 'feedback-wrong';
+        }
+        
+        // Kirim data ke Google Sheet
+        const dataToSend = {
+            namaSiswa: state.studentName,
+            level: state.currentLevelIndex + 1,
+            soal: ui.questionText.innerText,
+            jawabanSiswa: userAnswerText,
+            jawabanBenar: correctAnswerText,
+            skor: score
+        };
+        sendDataToSheet(dataToSend);
+        
+        if (state.currentQuestionIndex < 3) {
+             ui.controlButton.textContent = 'Soal Berikutnya';
+        } else {
+             ui.controlButton.textContent = 'Lanjut ke Level Berikutnya';
+        }
+       
+        updateScoreboard();
+    }
+    
+    // ... (Fungsi nextQuestion, endGame, updateScoreboard, resetUIForNewQuestion, dan event listener tetap sama) ...
+    function nextQuestion() { state.currentQuestionIndex++; if (state.currentQuestionIndex < 4) { displayQuestion(); } else { state.currentLevelIndex++; startLevel(); } }
+    function endGame() { ui.levelTitle.textContent = "Permainan Selesai!"; ui.questionText.innerHTML = Hebat! Kamu telah menyelesaikan semua tantangan Koki Kiko.<br><strong>Skor Akhir Kamu: ${state.totalScore}</strong>; ui.illustrationArea.innerHTML = ''; ui.singleInput.classList.add('hidden'); ui.doubleInput.classList.add('hidden'); ui.feedbackArea.textContent = ''; ui.controlButton.textContent = 'Main Lagi'; }
+    function updateScoreboard() { ui.levelNumber.textContent = state.currentLevelIndex < levels.length ? state.currentLevelIndex + 1 : levels.length; ui.levelScore.textContent = state.levelScore; ui.totalScore.textContent = state.totalScore; ui.progressBar.style.width = ${((state.currentQuestionIndex + 1) / 4) * 100}%; }
+    function resetUIForNewQuestion() { ui.feedbackArea.textContent = ''; ui.controlButton.textContent = 'Periksa Jawaban'; ui.input1.value = ''; ui.input2.value = ''; ui.singleInputEl.value = ''; ui.input1.disabled = false; ui.input2.disabled = false; ui.singleInputEl.disabled = false; updateScoreboard(); }
+    ui.controlButton.addEventListener('click', () => { const action = ui.controlButton.textContent; if (action === 'Periksa Jawaban') { checkAnswer(); } else if (action === 'Soal Berikutnya' || action.includes('Lanjut')) { nextQuestion(); } else if (action === 'Main Lagi') { location.reload(); } });
+    
+    startGame();
+});
+</script>
+
+</body>
+</html>
