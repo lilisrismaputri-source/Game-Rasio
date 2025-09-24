@@ -288,7 +288,119 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function checkAnswer() {
         const question = state.currentLevelQuestions[state.currentQuestionIndex];
-        let isCorrect
+        let isCorrect = false;
+        let score = 0;
+        let userAnswerText = "";
+        let correctAnswerText = "";
+
+        const val1 = parseInt(ui.input1.value, 10) || 0;
+        const val2 = parseInt(ui.input2.value, 10) || 0;
+        const singleVal = parseInt(ui.singleInputEl.value, 10) || 0;
+
+        if (question.type === 'illustration' || question.type === 'simplification') {
+            userAnswerText = `${val1} : ${val2}`;
+            const simplifiedCorrect = simplifyRatio(question.answer[0], question.answer[1]);
+            correctAnswerText = `${simplifiedCorrect[0]} : ${simplifiedCorrect[1]}`;
+        } else {
+            userAnswerText = singleVal.toString();
+            correctAnswerText = question.answer.toString();
+        }
+
+        if (question.type === 'illustration') {
+            const [ans1, ans2] = question.answer;
+            if (val1 === 0 && val2 === 0) isCorrect = false;
+            else if (ans1 === 0 || ans2 === 0) isCorrect = (ans1 === val1 && ans2 === val2);
+            else isCorrect = (val1 * ans2 === val2 * ans1);
+        } else if (question.type === 'simplification') {
+            isCorrect = (val1 === question.answer[0] && val2 === question.answer[1]);
+        } else {
+            isCorrect = (singleVal === question.answer);
+        }
+
+        ui.input1.disabled = true;
+        ui.input2.disabled = true;
+        ui.singleInputEl.disabled = true;
+
+        if (isCorrect) {
+            score = 25;
+            state.levelScore += score;
+            state.totalScore += score;
+            ui.feedbackArea.innerHTML = `Benar! Kamu dapat <strong>+${score}</strong> poin. 🎉`;
+            ui.feedbackArea.className = 'feedback-correct';
+        } else {
+            score = 0;
+            ui.feedbackArea.innerHTML = `Salah! Jawaban yang benar adalah <strong>${correctAnswerText}</strong>.`;
+            ui.feedbackArea.className = 'feedback-wrong';
+        }
+        
+        const dataToSend = {
+            namaSiswa: state.studentName,
+            level: state.currentLevelIndex + 1,
+            soal: ui.questionText.innerText,
+            jawabanSiswa: userAnswerText,
+            jawabanBenar: correctAnswerText,
+            skor: score
+        };
+        sendDataToSheet(dataToSend);
+        
+        if (state.currentQuestionIndex < 3) {
+             ui.controlButton.textContent = 'Soal Berikutnya';
+        } else {
+             ui.controlButton.textContent = 'Lanjut ke Level Berikutnya';
+        }
+       
+        updateScoreboard();
+    }
+    
+    function nextQuestion() {
+        state.currentQuestionIndex++;
+        if (state.currentQuestionIndex < 4) {
+            displayQuestion();
+        } else {
+            state.currentLevelIndex++;
+            startLevel();
+        }
+    }
+    
+    function endGame() {
+        ui.levelTitle.textContent = "Permainan Selesai!";
+        ui.questionText.innerHTML = `Hebat! Kamu telah menyelesaikan semua tantangan Koki Kiko.<br><strong>Skor Akhir Kamu: ${state.totalScore}</strong>`;
+        ui.illustrationArea.innerHTML = '';
+        ui.singleInput.classList.add('hidden');
+        ui.doubleInput.classList.add('hidden');
+        ui.feedbackArea.textContent = '';
+        ui.controlButton.textContent = 'Main Lagi';
+    }
+    
+    function updateScoreboard() {
+        ui.levelNumber.textContent = state.currentLevelIndex < levels.length ? state.currentLevelIndex + 1 : levels.length;
+        ui.levelScore.textContent = state.levelScore;
+        ui.totalScore.textContent = state.totalScore;
+        ui.progressBar.style.width = `${((state.currentQuestionIndex + 1) / 4) * 100}%`;
+    }
+    
+    function resetUIForNewQuestion() {
+        ui.feedbackArea.textContent = '';
+        ui.controlButton.textContent = 'Periksa Jawaban';
+        ui.input1.value = ''; ui.input2.value = ''; ui.singleInputEl.value = '';
+        ui.input1.disabled = false; ui.input2.disabled = false; ui.singleInputEl.disabled = false;
+        updateScoreboard();
+    }
+
+    ui.controlButton.addEventListener('click', () => {
+        const action = ui.controlButton.textContent;
+        if (action === 'Periksa Jawaban') {
+            checkAnswer();
+        } else if (action === 'Soal Berikutnya' || action.includes('Lanjut')) {
+            nextQuestion();
+        } else if (action === 'Main Lagi') {
+            location.reload();
+        }
+    });
+    
+    startGame();
+});
+</script>
 
 </body>
 </html>
