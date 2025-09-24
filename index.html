@@ -102,8 +102,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- URL WEB APP ANDA DARI LANGKAH 3 ---
-    // !!! GANTI DENGAN URL ANDA SENDIRI !!!
+    // URL Web App Anda
     const SCRIPT_URL = "https://script.google.com/macros/s/xxxxxxxxxxxxxxxxxxxxxxxxxxxxx/exec";
 
     const ui = {
@@ -124,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let state = {
-        studentName: "",
+        studentName: "Siswa Uji", // Nama siswa di-set otomatis untuk tes
         currentLevelIndex: 0,
         currentQuestionIndex: 0,
         levelScore: 0,
@@ -139,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         stroberi: 'https://img.icons8.com/plasticine/100/strawberry.png'
     };
     
-    // --- DATA SOAL LENGKAP SUDAH TERMASUK DI SINI ---
     const levels = [
         {
             title: "Pengenalan Rasio",
@@ -219,15 +217,11 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     function sendDataToSheet(data) {
-        // Mode 'no-cors' digunakan untuk mengirim data tanpa menunggu respons kompleks,
-        // yang seringkali cukup untuk logging data dan menghindari masalah CORS di GitHub Pages.
         fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
             cache: 'no-cache',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data),
             redirect: 'follow'
         })
@@ -240,10 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
 
     function startGame() {
-        state.studentName = prompt("Silakan masukkan nama Anda:", "Siswa");
-        if (!state.studentName) {
-            state.studentName = "Anonim";
-        }
+        // Fitur prompt dinonaktifkan sementara untuk debugging
         state.totalScore = 0;
         state.currentLevelIndex = 0;
         startLevel();
