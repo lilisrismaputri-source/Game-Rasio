@@ -107,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const SCRIPT_URL = "https://script.google.com/macros/s/xxxxxxxxxxxxxxxxxxxxxxxxxxxxx/exec";
 
     const ui = {
-        // ... (semua elemen UI tetap sama) ...
         levelNumber: document.getElementById('level-number'),
         levelScore: document.getElementById('level-score'),
         totalScore: document.getElementById('total-score'),
@@ -125,8 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     let state = {
-        studentName: "", // Untuk menyimpan nama siswa
-        // ... (sisa state tetap sama) ...
+        studentName: "",
         currentLevelIndex: 0,
         currentQuestionIndex: 0,
         levelScore: 0,
@@ -134,20 +132,98 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLevelQuestions: [],
     };
     
-    // ... (Data fruitImages dan levels tetap sama persis seperti sebelumnya) ...
     const fruitImages = {
         apel: 'https://img.icons8.com/plasticine/100/apple.png',
         jeruk: 'https://img.icons8.com/plasticine/100/orange.png',
         mangga: 'https://img.icons8.com/plasticine/100/000000/mango.png',
         stroberi: 'https://img.icons8.com/plasticine/100/strawberry.png'
     };
-    const levels = [ /* ... Salin dan tempel seluruh data 'levels' dari kode sebelumnya di sini ... */ ];
+    
+    // --- DATA SOAL LENGKAP SUDAH TERMASUK DI SINI ---
+    const levels = [
+        {
+            title: "Pengenalan Rasio",
+            questionBank: [
+                { type: 'illustration', items: { item1: { type: 'apel', count: 3 }, item2: { type: 'jeruk', count: 5 } }, answer: [3, 5] },
+                { type: 'illustration', items: { item1: { type: 'mangga', count: 4 }, item2: { type: 'stroberi', count: 2 } }, answer: [4, 2] },
+                { type: 'illustration', items: { item1: { type: 'jeruk', count: 6 }, item2: { type: 'apel', count: 6 } }, answer: [6, 6] },
+                { type: 'illustration', items: { item1: { type: 'stroberi', count: 7 }, item2: { type: 'mangga', count: 4 } }, answer: [7, 4] },
+                { type: 'illustration', items: { item1: { type: 'apel', count: 2 }, item2: { type: 'jeruk', count: 8 } }, answer: [2, 8] },
+                { type: 'illustration', items: { item1: { type: 'mangga', count: 5 }, item2: { type: 'apel', count: 3 } }, answer: [5, 3] },
+                { type: 'illustration', items: { item1: { type: 'jeruk', count: 9 }, item2: { type: 'stroberi', count: 3 } }, answer: [9, 3] },
+                { type: 'illustration', items: { item1: { type: 'stroberi', count: 1 }, item2: { type: 'apel', count: 5 } }, answer: [1, 5] },
+                { type: 'illustration', items: { item1: { type: 'mangga', count: 6 }, item2: { type: 'jeruk', count: 4 } }, answer: [6, 4] },
+                { type: 'illustration', items: { item1: { type: 'apel', count: 4 }, item2: { type: 'mangga', count: 4 } }, answer: [4, 4] }
+            ]
+        },
+        {
+            title: "Rasio Paling Sederhana",
+            questionBank: [
+                { type: 'simplification', question: [4, 6], answer: [2, 3] },
+                { type: 'simplification', question: [8, 10], answer: [4, 5] },
+                { type: 'simplification', question: [5, 15], answer: [1, 3] },
+                { type: 'simplification', question: [12, 9], answer: [4, 3] },
+                { type: 'simplification', question: [7, 7], answer: [1, 1] },
+                { type: 'simplification', question: [10, 20], answer: [1, 2] },
+                { type: 'simplification', question: [14, 21], answer: [2, 3] },
+                { type: 'simplification', question: [18, 12], answer: [3, 2] },
+                { type: 'simplification', question: [9, 27], answer: [1, 3] },
+                { type: 'simplification', question: [25, 10], answer: [5, 2] }
+            ]
+        },
+        {
+            title: "Resep Koki Kiko",
+            questionBank: [
+                { type: 'find_actual', text: "Resep rahasia Kiko punya rasio tepung : gula = 2 : 3. Jika ia memakai 100gr tepung, berapa gram gula yang dibutuhkan?", answer: 150 },
+                { type: 'find_actual', text: "Rasio sirup melon : leci untuk es buah adalah 5 : 2. Jika Kiko menuang 20ml sirup melon, berapa ml sirup leci yang diperlukan?", answer: 8 },
+                { type: 'find_actual', text: "Di etalase toko roti, rasio kue cokelat : keju adalah 4 : 5. Jika ada 40 kue keju, berapa jumlah kue cokelat?", answer: 32 },
+                { type: 'find_actual', text: "Rasio cuka : air untuk saus salad adalah 1 : 3. Jika Kiko butuh 9 sendok air, berapa sendok cuka yang ia perlukan?", answer: 3 },
+                { type: 'find_actual', text: "Untuk membuat adonan pizza, rasio air : terigu adalah 3 : 5. Jika dipakai 300ml air, berapa gram terigu yang diperlukan?", answer: 500 },
+                { type: 'find_actual', text: "Rasio botol sirup merah : kuning di rak adalah 7 : 4. Jika ada 28 botol merah, berapa jumlah botol kuning?", answer: 16 },
+                { type: 'find_actual', text: "Rasio topping meses : keju pada donat adalah 2 : 7. Jika ada 14 donat keju, berapa banyak donat meses?", answer: 4 },
+                { type: 'find_actual', text: "Perbandingan sirup : soda dalam minuman adalah 1 : 6. Jika Kiko memakai 50ml sirup, berapa ml soda yang ia butuhkan?", answer: 300 },
+                { type: 'find_actual', text: "Di dapur, rasio mangkuk : piring adalah 8 : 3. Jika ada 24 mangkuk, berapa jumlah piring?", answer: 9 },
+                { type: 'find_actual', text: "Rasio cat biru : putih untuk menghias kue adalah 2 : 5. Jika Kiko punya 10gr pewarna putih, berapa gram pewarna biru yang ia butuhkan?", answer: 4 },
+            ]
+        },
+        {
+            title: "Perbandingan Senilai di Dapur",
+            questionBank: [
+                { type: 'direct_proportion', text: "Untuk 1 adonan roti, Kiko butuh 500 gram tepung. Berapa gram tepung yang dibutuhkan untuk 4 adonan roti?", answer: 2000 },
+                { type: 'direct_proportion', text: "Harga 3 buah cupcake adalah Rp 15.000. Berapa harga untuk 8 buah cupcake yang sama?", answer: 40000 },
+                { type: 'direct_proportion', text: "Kiko dapat membuat 2 porsi jus dalam 10 menit. Berapa waktu yang dibutuhkan untuk membuat 7 porsi jus?", answer: 35 },
+                { type: 'direct_proportion', text: "Sebuah resep untuk 4 porsi sup membutuhkan 200 gram wortel. Jika Kiko memasak untuk 10 porsi, berapa gram wortel yang dibutuhkan?", answer: 500 },
+                { type: 'direct_proportion', text: "Mesin adonan Kiko dapat mengolah 1 kg adonan dalam 3 menit. Berapa kg adonan yang dapat diolah dalam 15 menit?", answer: 5 },
+                { type: 'direct_proportion', text: "Jika 100 gram gula mengandung 400 kalori, berapa kalori dalam 250 gram gula untuk adonan kue?", answer: 1000 },
+                { type: 'direct_proportion', text: "Seorang koki membutuhkan 2 butir telur untuk 1 porsi pancake. Berapa butir telur yang dibutuhkan untuk membuat 9 porsi pancake?", answer: 18 },
+                { type: 'direct_proportion', text: "Sebuah keran di dapur mengalirkan air 10 liter dalam 2 menit. Berapa liter air yang bisa diisi ke dalam panci selama 5 menit?", answer: 25 },
+                { type: 'direct_proportion', text: "Dengan 1 liter susu, Kiko bisa membuat 4 gelas milkshake. Jika ia punya 3 liter susu, berapa gelas milkshake yang bisa ia buat?", answer: 12 },
+                { type: 'direct_proportion', text: "Sebuah resep untuk 4 orang membutuhkan 200gr daging. Berapa gram daging yang dibutuhkan jika Kiko memasak untuk 10 orang?", answer: 500 }
+            ]
+        },
+        {
+            title: "Perbandingan Berbalik Nilai di Dapur",
+            questionBank: [
+                { type: 'inverse_proportion', text: "Satu pesanan besar dapat disiapkan oleh 2 koki dalam 60 menit. Jika 3 koki mengerjakannya, berapa menit waktu yang dibutuhkan?", answer: 40 },
+                { type: 'inverse_proportion', text: "Persediaan adonan cukup untuk membuat 30 donat jika setiap donat beratnya 50 gram. Jika Kiko membuat donat seberat 60 gram, berapa donat yang bisa dibuat?", answer: 25 },
+                { type: 'inverse_proportion', text: "Untuk menghias kue tart, 1 orang butuh 60 menit. Jika 4 orang bekerja sama menghias kue yang sama, berapa menit waktu yang dibutuhkan?", answer: 15 },
+                { type: 'inverse_proportion', text: "Sebuah loyang kue dapat diisi 20 adonan kecil. Jika ukuran adonan diperbesar 2 kali lipat, berapa adonan yang muat di loyang itu sekarang?", answer: 10 },
+                { type: 'inverse_proportion', text: "Satu panci sup akan habis oleh 8 orang. Jika ternyata yang datang 16 orang, maka setiap orang akan mendapat ... bagian dari porsi awal.", answer: 0.5 },
+                { type: 'inverse_proportion', text: "Kiko memotong 1 karung bawang sendirian dalam 40 menit. Jika dibantu adiknya, mereka selesai dalam 20 menit. Berapa kali lebih cepat pekerjaan mereka?", answer: 2 },
+                { type: 'inverse_proportion', text: "Stok es krim cukup untuk 10 anak selama 4 hari. Jika 10 anak lagi datang, berapa hari stok es krim itu akan habis?", answer: 2 },
+                { type: 'inverse_proportion', text: "Satu pekerjaan mencuci piring selesai oleh 1 orang dalam 30 menit. Jika dikerjakan 3 orang, berapa menit akan selesai?", answer: 10 },
+                { type: 'inverse_proportion', text: "Tiga pompa air bisa mengisi tangki dapur dalam 8 jam. Jika 1 pompa rusak (sisa 2), berapa jam waktu yang dibutuhkan?", answer: 12 },
+                { type: 'inverse_proportion', text: "Seorang koki memiliki bahan untuk 50 porsi selama 12 hari. Jika ia harus menyediakan 60 porsi per hari, bahan tersebut akan habis dalam berapa hari?", answer: 10 }
+            ]
+        }
+    ];
 
-    // --- FUNGSI BARU UNTUK MENGIRIM DATA ---
     function sendDataToSheet(data) {
+        // Mode 'no-cors' digunakan untuk mengirim data tanpa menunggu respons kompleks,
+        // yang seringkali cukup untuk logging data dan menghindari masalah CORS di GitHub Pages.
         fetch(SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', // Penting untuk menghindari error CORS
+            mode: 'no-cors',
             cache: 'no-cache',
             headers: {
                 'Content-Type': 'application/json'
@@ -155,115 +231,64 @@ document.addEventListener('DOMContentLoaded', () => {
             body: JSON.stringify(data),
             redirect: 'follow'
         })
-        .then(response => {
-            console.log("Data sent successfully");
-        })
-        .catch(error => {
-            console.error("Error sending data:", error);
-        });
+        .then(response => console.log("Data sent successfully"))
+        .catch(error => console.error("Error sending data:", error));
     }
 
-    // ... (Fungsi gcd, simplifyRatio, shuffleArray tetap sama) ...
     function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
     function simplifyRatio(num1, num2) { if (num1 === 0 && num2 === 0) return [0, 0]; const divisor = gcd(num1, num2); return [num1 / divisor, num2 / divisor]; }
     function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } }
-    
 
     function startGame() {
-        // Minta nama siswa di awal
         state.studentName = prompt("Silakan masukkan nama Anda:", "Siswa");
         if (!state.studentName) {
-            state.studentName = "Anonim"; // Default jika dibatalkan
+            state.studentName = "Anonim";
         }
-        
         state.totalScore = 0;
         state.currentLevelIndex = 0;
         startLevel();
     }
 
-    // ... (Fungsi startLevel dan displayQuestion tetap sama) ...
-    function startLevel() { if (state.currentLevelIndex >= levels.length) { endGame(); return; } const levelData = levels[state.currentLevelIndex]; state.levelScore = 0; state.currentQuestionIndex = 0; shuffleArray(levelData.questionBank); state.currentLevelQuestions = levelData.questionBank.slice(0, 4); updateScoreboard(); displayQuestion(); }
-    function displayQuestion() { resetUIForNewQuestion(); const levelData = levels[state.currentLevelIndex]; const question = state.currentLevelQuestions[state.currentQuestionIndex]; ui.levelTitle.textContent = Level ${state.currentLevelIndex + 1}: ${levelData.title}; ui.illustrationArea.innerHTML = ''; if (question.type === 'illustration') { ui.doubleInput.classList.remove('hidden'); ui.singleInput.classList.add('hidden'); ui.questionText.innerHTML = Amati buah di bawah. Apa rasio antara <strong>${question.items.item1.type}</strong> dan <strong>${question.items.item2.type}</strong>?; for (let i = 0; i < question.items.item1.count; i++) { const img = document.createElement('img'); img.src = fruitImages[question.items.item1.type]; ui.illustrationArea.appendChild(img); } for (let i = 0; i < question.items.item2.count; i++) { const img = document.createElement('img'); img.src = fruitImages[question.items.item2.type]; ui.illustrationArea.appendChild(img); } } else if (question.type === 'simplification') { ui.doubleInput.classList.remove('hidden'); ui.singleInput.classList.add('hidden'); ui.questionText.innerHTML = Sederhanakan rasio berikut ke bentuk paling kecil: <strong>${question.question[0]} : ${question.question[1]}</strong>; } else { ui.doubleInput.classList.add('hidden'); ui.singleInput.classList.remove('hidden'); ui.questionText.textContent = question.text; } }
+    function startLevel() {
+        if (state.currentLevelIndex >= levels.length) {
+            endGame();
+            return;
+        }
+        const levelData = levels[state.currentLevelIndex];
+        state.levelScore = 0;
+        state.currentQuestionIndex = 0;
+        shuffleArray(levelData.questionBank);
+        state.currentLevelQuestions = levelData.questionBank.slice(0, 4);
+        updateScoreboard();
+        displayQuestion();
+    }
 
+    function displayQuestion() {
+        resetUIForNewQuestion();
+        const levelData = levels[state.currentLevelIndex];
+        const question = state.currentLevelQuestions[state.currentQuestionIndex];
+        ui.levelTitle.textContent = `Level ${state.currentLevelIndex + 1}: ${levelData.title}`;
+        ui.illustrationArea.innerHTML = '';
+        if (question.type === 'illustration') {
+            ui.doubleInput.classList.remove('hidden');
+            ui.singleInput.classList.add('hidden');
+            ui.questionText.innerHTML = `Amati buah di bawah. Apa rasio antara <strong>${question.items.item1.type}</strong> dan <strong>${question.items.item2.type}</strong>?`;
+            for (let i = 0; i < question.items.item1.count; i++) { const img = document.createElement('img'); img.src = fruitImages[question.items.item1.type]; ui.illustrationArea.appendChild(img); }
+            for (let i = 0; i < question.items.item2.count; i++) { const img = document.createElement('img'); img.src = fruitImages[question.items.item2.type]; ui.illustrationArea.appendChild(img); }
+        } else if (question.type === 'simplification') {
+            ui.doubleInput.classList.remove('hidden');
+            ui.singleInput.classList.add('hidden');
+            ui.questionText.innerHTML = `Sederhanakan rasio berikut ke bentuk paling kecil: <strong>${question.question[0]} : ${question.question[1]}</strong>`;
+        } else {
+            ui.doubleInput.classList.add('hidden');
+            ui.singleInput.classList.remove('hidden');
+            ui.questionText.textContent = question.text;
+        }
+    }
 
-    // --- FUNGSI checkAnswer DIMODIFIKASI ---
     function checkAnswer() {
         const question = state.currentLevelQuestions[state.currentQuestionIndex];
-        let isCorrect = false;
-        let score = 0;
-        let userAnswerText = "";
-        let correctAnswerText = "";
-
-        const val1 = parseInt(ui.input1.value, 10) || 0;
-        const val2 = parseInt(ui.input2.value, 10) || 0;
-        const singleVal = parseInt(ui.singleInputEl.value, 10) || 0;
-
-        if (question.type === 'illustration' || question.type === 'simplification') {
-            userAnswerText = ${val1} : ${val2};
-            const simplifiedCorrect = simplifyRatio(question.answer[0], question.answer[1]);
-            correctAnswerText = ${simplifiedCorrect[0]} : ${simplifiedCorrect[1]};
-        } else {
-            userAnswerText = singleVal.toString();
-            correctAnswerText = question.answer.toString();
-        }
-
-        if (question.type === 'illustration') {
-            const [ans1, ans2] = question.answer;
-            if (val1 === 0 && val2 === 0) isCorrect = false;
-            else if (ans1 === 0 || ans2 === 0) isCorrect = (ans1 === val1 && ans2 === val2);
-            else isCorrect = (val1 * ans2 === val2 * ans1);
-        } else if (question.type === 'simplification') {
-            isCorrect = (val1 === question.answer[0] && val2 === question.answer[1]);
-        } else {
-            isCorrect = (singleVal === question.answer);
-        }
-
-        ui.input1.disabled = true;
-        ui.input2.disabled = true;
-        ui.singleInputEl.disabled = true;
-
-        if (isCorrect) {
-            score = 25;
-            state.levelScore += score;
-            state.totalScore += score;
-            ui.feedbackArea.innerHTML = Benar! Kamu dapat <strong>+${score}</strong> poin. 🎉;
-            ui.feedbackArea.className = 'feedback-correct';
-        } else {
-            score = 0;
-            ui.feedbackArea.innerHTML = Salah! Jawaban yang benar adalah <strong>${correctAnswerText}</strong>.;
-            ui.feedbackArea.className = 'feedback-wrong';
-        }
-        
-        // Kirim data ke Google Sheet
-        const dataToSend = {
-            namaSiswa: state.studentName,
-            level: state.currentLevelIndex + 1,
-            soal: ui.questionText.innerText,
-            jawabanSiswa: userAnswerText,
-            jawabanBenar: correctAnswerText,
-            skor: score
-        };
-        sendDataToSheet(dataToSend);
-        
-        if (state.currentQuestionIndex < 3) {
-             ui.controlButton.textContent = 'Soal Berikutnya';
-        } else {
-             ui.controlButton.textContent = 'Lanjut ke Level Berikutnya';
-        }
-       
-        updateScoreboard();
-    }
-    
-    // ... (Fungsi nextQuestion, endGame, updateScoreboard, resetUIForNewQuestion, dan event listener tetap sama) ...
-    function nextQuestion() { state.currentQuestionIndex++; if (state.currentQuestionIndex < 4) { displayQuestion(); } else { state.currentLevelIndex++; startLevel(); } }
-    function endGame() { ui.levelTitle.textContent = "Permainan Selesai!"; ui.questionText.innerHTML = Hebat! Kamu telah menyelesaikan semua tantangan Koki Kiko.<br><strong>Skor Akhir Kamu: ${state.totalScore}</strong>; ui.illustrationArea.innerHTML = ''; ui.singleInput.classList.add('hidden'); ui.doubleInput.classList.add('hidden'); ui.feedbackArea.textContent = ''; ui.controlButton.textContent = 'Main Lagi'; }
-    function updateScoreboard() { ui.levelNumber.textContent = state.currentLevelIndex < levels.length ? state.currentLevelIndex + 1 : levels.length; ui.levelScore.textContent = state.levelScore; ui.totalScore.textContent = state.totalScore; ui.progressBar.style.width = ${((state.currentQuestionIndex + 1) / 4) * 100}%; }
-    function resetUIForNewQuestion() { ui.feedbackArea.textContent = ''; ui.controlButton.textContent = 'Periksa Jawaban'; ui.input1.value = ''; ui.input2.value = ''; ui.singleInputEl.value = ''; ui.input1.disabled = false; ui.input2.disabled = false; ui.singleInputEl.disabled = false; updateScoreboard(); }
-    ui.controlButton.addEventListener('click', () => { const action = ui.controlButton.textContent; if (action === 'Periksa Jawaban') { checkAnswer(); } else if (action === 'Soal Berikutnya' || action.includes('Lanjut')) { nextQuestion(); } else if (action === 'Main Lagi') { location.reload(); } });
-    
-    startGame();
-});
-</script>
+        let isCorrect
 
 </body>
 </html>
